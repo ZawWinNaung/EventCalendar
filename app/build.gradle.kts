@@ -78,4 +78,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.dagger.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation (libs.compose.date.picker)
+    implementation (libs.androidx.material.icons.extended)
 }
