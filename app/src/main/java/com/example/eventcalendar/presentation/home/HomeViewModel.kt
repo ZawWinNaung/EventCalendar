@@ -1,5 +1,6 @@
 package com.example.eventcalendar.presentation.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.eventcalendar.domain.model.Week
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,45 +14,27 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor() : ViewModel() {
 
-    private val _nearByWeeks = MutableStateFlow<List<Week>>(emptyList())
-    val nearByWeeks: StateFlow<List<Week>> = _nearByWeeks
+    val sdf = SimpleDateFormat("DD/MM/yyyy", Locale.US)
 
-    fun getCurrentMonth() {
-        _nearByWeeks.value = getDaysInMonth()
-    }
+    private val _daysOfThisMonth = MutableStateFlow<MutableList<String>>(mutableListOf())
+    val daysOfThisMonth: StateFlow<MutableList<String>> = _daysOfThisMonth
 
-    fun getDaysInMonth(): List<Week> {
-        val calendar = Calendar.getInstance()
-
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-
-        // Get current week days
-        val currentWeekDays = getWeekDays(calendar)
-
-        // Get last week days (subtract 7 days)
-        calendar.add(Calendar.WEEK_OF_YEAR, -1)
-        val lastWeekDays = getWeekDays(calendar)
-
-        // Get next week days (move forward by 2 weeks from last week)
-        calendar.add(Calendar.WEEK_OF_YEAR, 2)
-        val nextWeekDays = getWeekDays(calendar)
-
-        val weekList: List<Week> =
-            listOf(Week(lastWeekDays), Week(currentWeekDays), Week(nextWeekDays))
-
-
-        return weekList
-    }
-
-    fun getWeekDays(startCalendar: Calendar): List<String> {
+    fun getDaysInMonth(calendar: Calendar = Calendar.getInstance()){
         val daysList = mutableListOf<String>()
-        val tempCalendar = startCalendar.clone() as Calendar
-        val sdf = SimpleDateFormat("DD/MM/yyyy", Locale.US)
-        repeat(7) {
-            daysList.add(sdf.format(tempCalendar.time))
-            tempCalendar.add(Calendar.DAY_OF_YEAR, 1)
 
+        // Set the calendar to the first day of the month
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+
+        // Get the number of days in the current month
+        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        // Iterate through each day in the month
+        for (day in 1..daysInMonth) {
+            calendar.set(Calendar.DAY_OF_MONTH, day)
+            val date = sdf.format(calendar.time)
+            daysList.add(date)
         }
-        return daysList
+
+        _daysOfThisMonth.value = daysList
     }
 }
