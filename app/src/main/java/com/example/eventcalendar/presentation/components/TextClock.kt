@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.eventcalendar.ui.theme.interFontFamily
+import com.example.eventcalendar.ui.theme.poppinsFontFamily
 
 @Composable
 fun TextClock(
@@ -32,8 +34,8 @@ fun TextClock(
     val resolver = LocalFontFamilyResolver.current
     val face: Typeface = remember(resolver, style) {
         resolver.resolve(
-            fontFamily = style.fontFamily,
-            fontWeight = style.fontWeight ?: FontWeight.Normal,
+            fontFamily = interFontFamily,
+            fontWeight = FontWeight.Bold,
             fontStyle = style.fontStyle ?: FontStyle.Normal,
             fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
         )

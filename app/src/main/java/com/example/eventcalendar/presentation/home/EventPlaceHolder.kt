@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.eventcalendar.R
 import com.example.eventcalendar.presentation.components.TextClock
+import com.example.eventcalendar.presentation.components.dashedBorder
 
 @Composable
 fun EventPlaceHolder() {
@@ -41,23 +42,30 @@ fun EventPlaceHolder() {
                 .weight(1f)
                 .padding(start = 8.dp)
         ) {
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(top = 8.dp),
-                elevation = CardDefaults.cardElevation(2.dp),
+                    .height(200.dp),
+                elevation = CardDefaults.cardElevation(),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardColors(
                     contentColor = MaterialTheme.colorScheme.onBackground,
                     containerColor = MaterialTheme.colorScheme.background,
                     disabledContentColor = MaterialTheme.colorScheme.onBackground,
                     disabledContainerColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                onClick = {}
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .dashedBorder(
+                            width = 2.dp,
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(20.dp),
+                            on = 10.dp,
+                            off = 15.dp
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

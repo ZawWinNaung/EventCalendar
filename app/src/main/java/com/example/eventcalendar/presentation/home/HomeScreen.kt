@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -43,9 +47,11 @@ import com.dt.composedatepicker.ComposeCalendar
 import com.dt.composedatepicker.MonthViewType
 import com.dt.composedatepicker.SelectDateListener
 import com.example.eventcalendar.presentation.components.DayItem
+import com.example.eventcalendar.presentation.components.EventItem
 import com.example.eventcalendar.presentation.components.TextClock
 import com.example.eventcalendar.presentation.components.dashedBorder
 import com.example.eventcalendar.util.isSameDay
+import com.example.eventcalendar.util.isToday
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -55,6 +61,7 @@ import java.util.Locale
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
     val daysInMonth = viewModel.daysOfThisMonth.collectAsState()
+    val todayEventList = viewModel.todayEvents.collectAsState()
 
     var selectedDate by remember { mutableStateOf<String?>(null) }
 
@@ -92,6 +99,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             daysInMonth.value.forEachIndexed { index, it ->
                 if (isToday(it, viewModel.sdf)) {
                     listState.animateScrollToItem(index)
+                    viewModel.getTodayEvents(it)
                 }
             }
         }
@@ -109,7 +117,11 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(
+                    top = padding.calculateTopPadding(),
+                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = padding.calculateEndPadding(LayoutDirection.Rtl)
+                )
         ) {
 
             if (daysInMonth.value.isNotEmpty()) {
@@ -127,6 +139,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                             isToday = isToday(day, viewModel.sdf),
                             onDateSelected = {
                                 selectedDate = day
+                                viewModel.getTodayEvents(day)
                             })
                     }
                 }
@@ -134,7 +147,25 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
             HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
 
-            EventPlaceHolder()
+            if (todayEventList.value.isEmpty()) {
+                EventPlaceHolder()
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentPadding = PaddingValues(
+                        top = 16.dp,
+                        bottom = padding.calculateBottomPadding()
+                    )
+                ) {
+                    items(todayEventList.value) { item ->
+                        EventItem(
+                            event = item
+                        )
+                    }
+                }
+            }
 
             if (monthPickerShow.value) {
                 Dialog(
@@ -158,11 +189,4 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
         }
     }
-}
-
-fun isToday(day: String, sdf: SimpleDateFormat): Boolean {
-    val date = sdf.parse(day)
-    val cal = Calendar.getInstance()
-    cal.time = date
-    return isSameDay(Calendar.getInstance(), cal)
 }
