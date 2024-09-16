@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.eventcalendar.presentation.components.MyIconButton
+import com.example.eventcalendar.ui.theme.interFontFamily
 
 @Composable
 fun HomeAppBar(text: String = "", onClick: () -> Unit) {
@@ -66,7 +67,8 @@ fun HomeAppBar(text: String = "", onClick: () -> Unit) {
                     text = text, style = MaterialTheme.typography.headlineMedium.copy(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = interFontFamily
                     )
                 )
             }

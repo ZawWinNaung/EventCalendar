@@ -1,8 +1,10 @@
 package com.example.eventcalendar.presentation.home
 
 import android.util.Log
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.ViewModel
-import com.example.eventcalendar.domain.model.Week
+import com.example.eventcalendar.domain.model.MyEvent
+import com.example.eventcalendar.util.isToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,10 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private val _daysOfThisMonth = MutableStateFlow<MutableList<String>>(mutableListOf())
     val daysOfThisMonth: StateFlow<MutableList<String>> = _daysOfThisMonth
 
-    fun getDaysInMonth(calendar: Calendar = Calendar.getInstance()){
+    private val _todayEvents = MutableStateFlow<MutableList<MyEvent>>(mutableListOf())
+    val todayEvents: StateFlow<MutableList<MyEvent>> = _todayEvents
+
+    fun getDaysInMonth(calendar: Calendar = Calendar.getInstance()) {
         val daysList = mutableListOf<String>()
 
         // Set the calendar to the first day of the month
@@ -36,5 +41,48 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
 
         _daysOfThisMonth.value = daysList
+    }
+
+    fun getTodayEvents(todayDate: String) {
+        val today = sdf.parse(todayDate)
+
+        val todayEventList: MutableList<MyEvent> = mutableListOf()
+        val calendar = Calendar.getInstance()
+        if (isToday(todayDate, sdf)) {
+            val sampleText = LoremIpsum(words = 100).values.first()
+            todayEventList.addAll(
+                listOf(
+                    MyEvent.Reminder(
+                        repeat = "",
+                        title = sampleText,
+                        description = sampleText,
+                        time = calendar.time.time
+                    ),
+                    MyEvent.Reminder(
+                        repeat = "",
+                        title = "Call to David",
+                        description = "ask for overtime",
+                        time = calendar.time.time
+                    ),
+                    MyEvent.SimpleEvent(
+                        repeat = "",
+                        title = "Join technical meeting",
+                        description = "buy coffee before",
+                        time = calendar.time.time,
+                        endTime = calendar.time.time
+                    ),
+                    MyEvent.SimpleEvent(
+                        repeat = "",
+                        title = sampleText,
+                        description = sampleText,
+                        time = calendar.time.time,
+                        endTime = calendar.time.time
+                    ),
+                )
+            )
+            _todayEvents.value = todayEventList
+        } else {
+            _todayEvents.value = todayEventList
+        }
     }
 }
