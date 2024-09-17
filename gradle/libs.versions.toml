@@ -11,6 +11,7 @@ activityCompose = "1.9.2"
 composeBom = "2024.04.01"
 composeNavigation = "2.8.0"
 materialIconsExtended = "1.7.1"
+roomRuntime = "2.6.1"
 serialization = "1.6.3"
 devtools-ksp = "1.9.0-1.0.13"
 hiltAndroid = "2.49"
@@ -22,6 +23,9 @@ kotlinxSerialization = "1.9.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 compose-date-picker = { module = "com.github.DogusTeknoloji:compose-date-picker", version.ref = "composeDatePicker" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -49,5 +53,6 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerialization" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
+androidx-room = {id = "androidx.room", version.ref = "roomRuntime"}
 
 
