@@ -27,7 +27,7 @@ import com.example.eventcalendar.presentation.components.TextClock
 import com.example.eventcalendar.presentation.components.dashedBorder
 
 @Composable
-fun EventPlaceHolder() {
+fun EventPlaceHolder(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,7 +54,7 @@ fun EventPlaceHolder() {
                     disabledContentColor = MaterialTheme.colorScheme.onBackground,
                     disabledContainerColor = MaterialTheme.colorScheme.background
                 ),
-                onClick = {}
+                onClick = { onClick() }
             ) {
                 Box(
                     modifier = Modifier

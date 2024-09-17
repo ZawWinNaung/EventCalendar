@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -50,6 +51,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -72,6 +76,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.navigation.compose)
+    implementation (libs.compose.date.picker)
+    implementation (libs.androidx.material.icons.extended)
 
     /*hilt*/
     implementation(libs.hilt.android)
@@ -79,6 +85,8 @@ dependencies {
     ksp(libs.dagger.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation (libs.compose.date.picker)
-    implementation (libs.androidx.material.icons.extended)
+    /*Room*/
+    implementation(libs.androidx.room.runtime)
+    implementation (libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

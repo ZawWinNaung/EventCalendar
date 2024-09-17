@@ -1,28 +1,35 @@
 package com.example.eventcalendar.presentation.home
 
-import android.util.Log
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.eventcalendar.domain.core.MyResult
+import com.example.eventcalendar.domain.entity.MyEventEntity
 import com.example.eventcalendar.domain.model.MyEvent
-import com.example.eventcalendar.util.isToday
+import com.example.eventcalendar.domain.usecase.GetEventsByDate
+import com.example.eventcalendar.domain.usecase.InsertEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val insertEvent: InsertEvent,
+    private val getEventsByDate: GetEventsByDate
+) : ViewModel() {
 
     val sdf = SimpleDateFormat("DD/MM/yyyy", Locale.US)
 
     private val _daysOfThisMonth = MutableStateFlow<MutableList<String>>(mutableListOf())
     val daysOfThisMonth: StateFlow<MutableList<String>> = _daysOfThisMonth
 
-    private val _todayEvents = MutableStateFlow<MutableList<MyEvent>>(mutableListOf())
-    val todayEvents: StateFlow<MutableList<MyEvent>> = _todayEvents
+    private val _eventList = MutableStateFlow<List<MyEvent>>(listOf())
+    val eventList: StateFlow<List<MyEvent>> = _eventList
 
     fun getDaysInMonth(calendar: Calendar = Calendar.getInstance()) {
         val daysList = mutableListOf<String>()
@@ -43,46 +50,46 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         _daysOfThisMonth.value = daysList
     }
 
-    fun getTodayEvents(todayDate: String) {
-        val today = sdf.parse(todayDate)
-
-        val todayEventList: MutableList<MyEvent> = mutableListOf()
+    fun insert(date: String){
+        val d = sdf.parse(date)
         val calendar = Calendar.getInstance()
-        if (isToday(todayDate, sdf)) {
-            val sampleText = LoremIpsum(words = 100).values.first()
-            todayEventList.addAll(
-                listOf(
-                    MyEvent.Reminder(
-                        repeat = "",
-                        title = sampleText,
-                        description = sampleText,
-                        time = calendar.time.time
-                    ),
-                    MyEvent.Reminder(
-                        repeat = "",
-                        title = "Call to David",
-                        description = "ask for overtime",
-                        time = calendar.time.time
-                    ),
-                    MyEvent.SimpleEvent(
-                        repeat = "",
-                        title = "Join technical meeting",
-                        description = "buy coffee before",
-                        time = calendar.time.time,
-                        endTime = calendar.time.time
-                    ),
-                    MyEvent.SimpleEvent(
-                        repeat = "",
-                        title = sampleText,
-                        description = sampleText,
-                        time = calendar.time.time,
-                        endTime = calendar.time.time
-                    ),
-                )
+        val sampleText: (words: Int) -> String =
+            { words -> LoremIpsum(words = words).values.first() }
+        viewModelScope.launch {
+            val event = MyEventEntity(
+                id = 0,
+                title = sampleText(10),
+                description = sampleText(24),
+                time = calendar.time.time,
+                endTime = null,
+                date = d.time,
+                endDate = null,
+                repeat = true,
+                repeatPattern = null
             )
-            _todayEvents.value = todayEventList
-        } else {
-            _todayEvents.value = todayEventList
+            val insert = insertEvent.execute(event)
+            when (insert) {
+                is MyResult.Success -> {
+                    getEventsByDate(date)
+                }
+
+                is MyResult.Error -> {}
+            }
+        }
+    }
+
+    fun getEventsByDate(date: String) {
+        val d = sdf.parse(date)
+        viewModelScope.launch {
+            when (val getEventList = getEventsByDate.execute(d.time)) {
+                is MyResult.Success -> {
+                    _eventList.value = getEventList.data
+                }
+
+                is MyResult.Error -> {
+
+                }
+            }
         }
     }
 }
