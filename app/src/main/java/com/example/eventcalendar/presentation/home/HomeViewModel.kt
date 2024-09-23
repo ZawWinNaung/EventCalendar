@@ -23,7 +23,7 @@ class HomeViewModel @Inject constructor(
     private val getEventsByDate: GetEventsByDate
 ) : ViewModel() {
 
-    val sdf = SimpleDateFormat("DD/MM/yyyy", Locale.US)
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.US)
 
     private val _daysOfThisMonth = MutableStateFlow<MutableList<String>>(mutableListOf())
     val daysOfThisMonth: StateFlow<MutableList<String>> = _daysOfThisMonth
