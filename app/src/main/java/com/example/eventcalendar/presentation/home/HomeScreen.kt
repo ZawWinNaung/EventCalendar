@@ -35,6 +35,7 @@ import com.dt.composedatepicker.CalendarType
 import com.dt.composedatepicker.ComposeCalendar
 import com.dt.composedatepicker.MonthViewType
 import com.dt.composedatepicker.SelectDateListener
+import com.example.eventcalendar.domain.constant.sdf
 import com.example.eventcalendar.presentation.components.DayItem
 import com.example.eventcalendar.presentation.components.EventItem
 import com.example.eventcalendar.presentation.create.CreateReminderScreen
@@ -94,7 +95,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     LaunchedEffect(daysInMonth.value) {
         if (daysInMonth.value.isNotEmpty()) {
             daysInMonth.value.forEachIndexed { index, it ->
-                if (isToday(it, viewModel.sdf)) {
+                if (isToday(it, sdf)) {
                     listState.animateScrollToItem(index)
                     viewModel.getEventsByDate(it)
                 }
@@ -133,7 +134,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                             modifier = Modifier.padding(end = 8.dp),
                             date = day,
                             isSelected = selectedDate == day,
-                            isToday = isToday(day, viewModel.sdf),
+                            isToday = isToday(day, sdf),
                             onDateSelected = {
                                 selectedDate = day
                                 viewModel.getEventsByDate(day)
@@ -149,7 +150,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                     onClick = {
                         if (selectedDate.isNullOrBlank()) {
                             val calendar = Calendar.getInstance()
-                            val today = viewModel.sdf.format(calendar.time.time)
+                            val today = sdf.format(calendar.time.time)
                             //viewModel.insert(today)
                         } else {
                             //viewModel.insert(selectedDate!!)
@@ -200,7 +201,12 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             if (showCreateReminder) {
                 CreateReminderScreen(
                     sheetState = sheetState,
-                    onDismissRequest = { showCreateReminder = false })
+                    onDismissRequest = { date ->
+                        showCreateReminder = false
+                        if (date != null){
+                            viewModel.getEventsByDate(date)
+                        }
+                    })
             }
 
         }

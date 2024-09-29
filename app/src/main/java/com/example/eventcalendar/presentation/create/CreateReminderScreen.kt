@@ -37,19 +37,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.eventcalendar.domain.constant.sdf
+import com.example.eventcalendar.domain.core.ValidationEvent
+import com.example.eventcalendar.presentation.components.ErrorText
 import com.example.eventcalendar.ui.theme.interFontFamily
 import com.example.eventcalendar.ui.theme.poppinsFontFamily
+import com.example.eventcalendar.util.stringToDate
 import com.example.eventcalendar.util.toDateString
 import com.example.eventcalendar.util.toTimeString
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
+fun CreateReminderScreen(
+    sheetState: SheetState,
+    onDismissRequest: (String?) -> Unit,
+    viewModel: CreateReminderViewModel = hiltViewModel()
+) {
     var titleValue by remember { mutableStateOf("") }
     var time by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
@@ -59,6 +69,22 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
     val maxChar = 140
 
     val repeatTypes = listOf("Never", "Everyday", "Every Week", "Every Month", "Every Year")
+
+    val state = viewModel.formState
+    val context = LocalContext.current
+
+    LaunchedEffect(context) {
+        viewModel.validationEvent.collect { event ->
+            when (event) {
+                ValidationEvent.Success -> {
+                    viewModel.insert(date) {
+                        val formattedDate = sdf.format(date.stringToDate())
+                        onDismissRequest(formattedDate)
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(true) {
         val calendar = Calendar.getInstance()
@@ -70,7 +96,7 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
         modifier = Modifier.fillMaxHeight(),
         sheetState = sheetState,
         shape = BottomSheetDefaults.HiddenShape,
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = { onDismissRequest(null) },
         dragHandle = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -90,7 +116,7 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         modifier = Modifier.clickable {
-                            onDismissRequest()
+                            onDismissRequest(null)
                         }
                     )
                     Text(
@@ -105,7 +131,7 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         modifier = Modifier.clickable {
-
+                            viewModel.onEvent(CreateReminderFormEvent.Submit)
                         }
                     )
                 }
@@ -126,9 +152,9 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
                         color = Color.Gray
                     )
                 },
-                value = titleValue,
+                value = state.title,
                 shape = RoundedCornerShape(10.dp),
-                onValueChange = { titleValue = it },
+                onValueChange = { viewModel.onEvent(CreateReminderFormEvent.TitleChanged(it)) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.LightGray,
                     unfocusedBorderColor = Color.LightGray,
@@ -139,7 +165,11 @@ fun CreateReminderScreen(sheetState: SheetState, onDismissRequest: () -> Unit) {
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 ),
+                isError = state.titleError != null
             )
+            if (state.titleError != null) {
+                ErrorText(state.titleError)
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
