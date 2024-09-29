@@ -3,6 +3,7 @@ package com.example.eventcalendar.presentation.home
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.eventcalendar.domain.constant.sdf
 import com.example.eventcalendar.domain.core.MyResult
 import com.example.eventcalendar.domain.entity.MyEventEntity
 import com.example.eventcalendar.domain.model.MyEvent
@@ -19,11 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val insertEvent: InsertEvent,
     private val getEventsByDate: GetEventsByDate
 ) : ViewModel() {
-
-    val sdf = SimpleDateFormat("DD/MM/yyyy", Locale.US)
 
     private val _daysOfThisMonth = MutableStateFlow<MutableList<String>>(mutableListOf())
     val daysOfThisMonth: StateFlow<MutableList<String>> = _daysOfThisMonth
@@ -50,33 +48,7 @@ class HomeViewModel @Inject constructor(
         _daysOfThisMonth.value = daysList
     }
 
-    fun insert(date: String){
-        val d = sdf.parse(date)
-        val calendar = Calendar.getInstance()
-        val sampleText: (words: Int) -> String =
-            { words -> LoremIpsum(words = words).values.first() }
-        viewModelScope.launch {
-            val event = MyEventEntity(
-                id = 0,
-                title = sampleText(10),
-                description = sampleText(24),
-                time = calendar.time.time,
-                endTime = null,
-                date = d.time,
-                endDate = null,
-                repeat = true,
-                repeatPattern = null
-            )
-            val insert = insertEvent.execute(event)
-            when (insert) {
-                is MyResult.Success -> {
-                    getEventsByDate(date)
-                }
 
-                is MyResult.Error -> {}
-            }
-        }
-    }
 
     fun getEventsByDate(date: String) {
         val d = sdf.parse(date)

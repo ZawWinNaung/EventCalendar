@@ -1,5 +1,6 @@
 package com.example.eventcalendar.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +14,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
@@ -32,19 +36,25 @@ import com.dt.composedatepicker.CalendarType
 import com.dt.composedatepicker.ComposeCalendar
 import com.dt.composedatepicker.MonthViewType
 import com.dt.composedatepicker.SelectDateListener
+import com.example.eventcalendar.domain.constant.sdf
 import com.example.eventcalendar.presentation.components.DayItem
 import com.example.eventcalendar.presentation.components.EventItem
+import com.example.eventcalendar.presentation.create.CreateReminderScreen
 import com.example.eventcalendar.util.isToday
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
     val daysInMonth = viewModel.daysOfThisMonth.collectAsState()
     val todayEventList = viewModel.eventList.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     var selectedDate by remember { mutableStateOf<String?>(null) }
 
@@ -54,7 +64,13 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
     val monthPickerShow = remember { mutableStateOf(false) }
 
+    var showCreateReminder by remember { mutableStateOf(false) }
+
     val formatter = SimpleDateFormat("MMM yyyy", Locale.US)
+
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
 
     val selectDateListener = object : SelectDateListener {
         override fun onCanceled() {
@@ -80,11 +96,17 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     LaunchedEffect(daysInMonth.value) {
         if (daysInMonth.value.isNotEmpty()) {
             daysInMonth.value.forEachIndexed { index, it ->
-                if (isToday(it, viewModel.sdf)) {
+                if (isToday(it, sdf)) {
                     listState.animateScrollToItem(index)
-                    viewModel.getEventsByDate(it)
+                    selectedDate = it
                 }
             }
+        }
+    }
+
+    LaunchedEffect(selectedDate) {
+        if (selectedDate != null){
+            viewModel.getEventsByDate(selectedDate!!)
         }
     }
 
@@ -119,7 +141,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                             modifier = Modifier.padding(end = 8.dp),
                             date = day,
                             isSelected = selectedDate == day,
-                            isToday = isToday(day, viewModel.sdf),
+                            isToday = isToday(day, sdf),
                             onDateSelected = {
                                 selectedDate = day
                                 viewModel.getEventsByDate(day)
@@ -133,14 +155,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             if (todayEventList.value.isEmpty()) {
                 EventPlaceHolder(
                     onClick = {
-                        if (selectedDate.isNullOrBlank()) {
-                            val calendar = Calendar.getInstance()
-                            val today = viewModel.sdf.format(calendar.time.time)
-                            viewModel.insert(today)
-                        } else {
-                            viewModel.insert(selectedDate!!)
+                        showCreateReminder = true
+                        coroutineScope.launch {
+                            sheetState.expand()
                         }
-
                     })
             } else {
                 LazyColumn(
@@ -178,6 +196,27 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                         )
                     }
                 }
+            }
+
+            if (showCreateReminder) {
+                val today = sdf.format(Calendar.getInstance().time)
+                CreateReminderScreen(
+                    sheetState = sheetState,
+                    initialDate = selectedDate ?: today,
+                    onDismissRequest = {
+                        showCreateReminder = false
+                    },
+                    onSaveSuccess = { date ->
+                        coroutineScope.launch {
+                            sheetState.hide()
+                        }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showCreateReminder = false
+                            }
+                        }
+                        selectedDate = date
+                        viewModel.getEventsByDate(date)
+                    })
             }
 
         }

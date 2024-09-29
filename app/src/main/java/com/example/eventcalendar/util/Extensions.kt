@@ -15,3 +15,24 @@ fun Long.toTimeString(): String {
         ""
     }
 }
+
+fun Long.toDateString(): String {
+    val formatter = SimpleDateFormat("dd MMM, yyyy", Locale.US)
+    return try {
+        formatter.format(this)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        ""
+    }
+}
+
+fun String.stringToDate(): Date {
+    val formatter = SimpleDateFormat("dd MMM, yyyy", Locale.US)
+    return try {
+        val date = formatter.parse(this)
+        date ?: Calendar.getInstance().time
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        Calendar.getInstance().time
+    }
+}
