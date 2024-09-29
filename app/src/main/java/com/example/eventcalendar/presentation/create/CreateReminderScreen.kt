@@ -57,6 +57,7 @@ import java.util.Calendar
 @Composable
 fun CreateReminderScreen(
     sheetState: SheetState,
+    initialDate: String,
     onDismissRequest: () -> Unit,
     onSaveSuccess: (date: String) -> Unit,
     viewModel: CreateReminderViewModel = hiltViewModel()
@@ -90,7 +91,11 @@ fun CreateReminderScreen(
     LaunchedEffect(true) {
         val calendar = Calendar.getInstance()
         time = calendar.time.time.toTimeString()
-        date = calendar.time.time.toDateString()
+        val parsedDate = sdf.parse(initialDate)
+        parsedDate?.let {
+            val formattedDate = it.time.toDateString()
+            date = formattedDate
+        }
     }
 
     ModalBottomSheet(

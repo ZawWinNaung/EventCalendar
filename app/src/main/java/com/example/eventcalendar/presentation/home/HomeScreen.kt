@@ -1,5 +1,6 @@
 package com.example.eventcalendar.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,9 +98,15 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             daysInMonth.value.forEachIndexed { index, it ->
                 if (isToday(it, sdf)) {
                     listState.animateScrollToItem(index)
-                    viewModel.getEventsByDate(it)
+                    selectedDate = it
                 }
             }
+        }
+    }
+
+    LaunchedEffect(selectedDate) {
+        if (selectedDate != null){
+            viewModel.getEventsByDate(selectedDate!!)
         }
     }
 
@@ -148,13 +155,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             if (todayEventList.value.isEmpty()) {
                 EventPlaceHolder(
                     onClick = {
-                        if (selectedDate.isNullOrBlank()) {
-                            val calendar = Calendar.getInstance()
-                            val today = sdf.format(calendar.time.time)
-                            //viewModel.insert(today)
-                        } else {
-                            //viewModel.insert(selectedDate!!)
-                        }
                         showCreateReminder = true
                         coroutineScope.launch {
                             sheetState.expand()
@@ -199,8 +199,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
 
             if (showCreateReminder) {
+                val today = sdf.format(Calendar.getInstance().time)
                 CreateReminderScreen(
                     sheetState = sheetState,
+                    initialDate = selectedDate ?: today,
                     onDismissRequest = {
                         showCreateReminder = false
                     },
@@ -212,6 +214,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                                 showCreateReminder = false
                             }
                         }
+                        selectedDate = date
                         viewModel.getEventsByDate(date)
                     })
             }
