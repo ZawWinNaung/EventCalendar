@@ -201,11 +201,18 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             if (showCreateReminder) {
                 CreateReminderScreen(
                     sheetState = sheetState,
-                    onDismissRequest = { date ->
+                    onDismissRequest = {
                         showCreateReminder = false
-                        if (date != null){
-                            viewModel.getEventsByDate(date)
+                    },
+                    onSaveSuccess = { date ->
+                        coroutineScope.launch {
+                            sheetState.hide()
+                        }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showCreateReminder = false
+                            }
                         }
+                        viewModel.getEventsByDate(date)
                     })
             }
 

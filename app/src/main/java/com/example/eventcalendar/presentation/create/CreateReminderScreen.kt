@@ -57,10 +57,10 @@ import java.util.Calendar
 @Composable
 fun CreateReminderScreen(
     sheetState: SheetState,
-    onDismissRequest: (String?) -> Unit,
+    onDismissRequest: () -> Unit,
+    onSaveSuccess: (date: String) -> Unit,
     viewModel: CreateReminderViewModel = hiltViewModel()
 ) {
-    var titleValue by remember { mutableStateOf("") }
     var time by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -78,8 +78,9 @@ fun CreateReminderScreen(
             when (event) {
                 ValidationEvent.Success -> {
                     viewModel.insert(date) {
+                        viewModel.formState = CreateReminderFormState()
                         val formattedDate = sdf.format(date.stringToDate())
-                        onDismissRequest(formattedDate)
+                        onSaveSuccess(formattedDate)
                     }
                 }
             }
@@ -96,7 +97,10 @@ fun CreateReminderScreen(
         modifier = Modifier.fillMaxHeight(),
         sheetState = sheetState,
         shape = BottomSheetDefaults.HiddenShape,
-        onDismissRequest = { onDismissRequest(null) },
+        onDismissRequest = {
+            viewModel.formState = CreateReminderFormState()
+            onDismissRequest()
+        },
         dragHandle = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -116,7 +120,8 @@ fun CreateReminderScreen(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         modifier = Modifier.clickable {
-                            onDismissRequest(null)
+                            viewModel.formState = CreateReminderFormState()
+                            onDismissRequest()
                         }
                     )
                     Text(
