@@ -16,7 +16,6 @@ import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -43,11 +42,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.eventcalendar.domain.constant.RepeatType
 import com.example.eventcalendar.domain.constant.sdf
 import com.example.eventcalendar.domain.core.ValidationEvent
 import com.example.eventcalendar.presentation.components.ErrorText
 import com.example.eventcalendar.ui.theme.interFontFamily
 import com.example.eventcalendar.ui.theme.poppinsFontFamily
+import com.example.eventcalendar.util.longToDate
 import com.example.eventcalendar.util.stringToDate
 import com.example.eventcalendar.util.toDateString
 import com.example.eventcalendar.util.toTimeString
@@ -62,14 +63,10 @@ fun CreateReminderScreen(
     onSaveSuccess: (date: String) -> Unit,
     viewModel: CreateReminderViewModel = hiltViewModel()
 ) {
-    var time by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var repeat by remember { mutableStateOf("") }
     val maxChar = 140
 
-    val repeatTypes = listOf("Never", "Everyday", "Every Week", "Every Month", "Every Year")
+    val repeatTypes = enumValues<RepeatType>()
 
     val state = viewModel.formState
     val context = LocalContext.current
@@ -78,9 +75,9 @@ fun CreateReminderScreen(
         viewModel.validationEvent.collect { event ->
             when (event) {
                 ValidationEvent.Success -> {
-                    viewModel.insert(date) {
+                    viewModel.insert {
                         viewModel.formState = CreateReminderFormState()
-                        val formattedDate = sdf.format(date.stringToDate())
+                        val formattedDate = sdf.format(state.date.longToDate())
                         onSaveSuccess(formattedDate)
                     }
                 }
@@ -90,11 +87,10 @@ fun CreateReminderScreen(
 
     LaunchedEffect(true) {
         val calendar = Calendar.getInstance()
-        time = calendar.time.time.toTimeString()
+        viewModel.onEvent(CreateReminderFormEvent.TimeChanged(calendar.time.time))
         val parsedDate = sdf.parse(initialDate)
         parsedDate?.let {
-            val formattedDate = it.time.toDateString()
-            date = formattedDate
+            viewModel.onEvent(CreateReminderFormEvent.DateChanged(it.time))
         }
     }
 
@@ -192,7 +188,7 @@ fun CreateReminderScreen(
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(end = 4.dp),
-                    value = time,
+                    value = state.time.toTimeString(),
                     prefix = {
                         Icon(
                             imageVector = Icons.Rounded.AccessTime,
@@ -212,14 +208,14 @@ fun CreateReminderScreen(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray,
                         disabledBorderColor = Color.LightGray,
-                    )
+                    ),
                 )
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(start = 4.dp),
-                    value = date,
+                    value = state.date.toDateString(),
                     prefix = {
                         Icon(
                             imageVector = Icons.Rounded.CalendarToday,
@@ -252,7 +248,7 @@ fun CreateReminderScreen(
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(start = 4.dp),
-                    value = repeat,
+                    value = state.repeat,
                     readOnly = true,
                     placeholder = {
                         Text(
@@ -284,6 +280,7 @@ fun CreateReminderScreen(
                         focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
                     ),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    isError = state.repeatError != null
                 )
 
                 ExposedDropdownMenu(
@@ -292,14 +289,17 @@ fun CreateReminderScreen(
                 ) {
                     repeatTypes.forEach {
                         DropdownMenuItem(
-                            text = { Text(text = it, fontFamily = interFontFamily) },
+                            text = { Text(text = it.type, fontFamily = interFontFamily) },
                             onClick = {
-                                repeat = it
+                                viewModel.onEvent(CreateReminderFormEvent.RepeatChanged(it.type))
                                 expanded = false
                             }
                         )
                     }
                 }
+            }
+            if (state.repeatError != null) {
+                ErrorText(state.repeatError)
             }
             OutlinedTextField(
                 modifier = Modifier
@@ -313,10 +313,10 @@ fun CreateReminderScreen(
                         fontFamily = interFontFamily
                     )
                 },
-                value = description,
+                value = state.description,
                 minLines = 3,
                 shape = RoundedCornerShape(10.dp),
-                onValueChange = { description = it },
+                onValueChange = { viewModel.onEvent(CreateReminderFormEvent.DescriptionChanged(it)) },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.LightGray,
                     unfocusedBorderColor = Color.LightGray,
@@ -336,7 +336,7 @@ fun CreateReminderScreen(
                 },
                 supportingText = {
                     Text(
-                        text = "${description.length} / $maxChar",
+                        text = "${state.description.length} / $maxChar",
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End,
                         fontFamily = interFontFamily

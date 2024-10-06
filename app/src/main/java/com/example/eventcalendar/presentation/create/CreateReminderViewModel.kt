@@ -11,6 +11,7 @@ import com.example.eventcalendar.domain.core.ValidationEvent
 import com.example.eventcalendar.domain.entity.MyEventEntity
 import com.example.eventcalendar.domain.usecase.InsertEvent
 import com.example.eventcalendar.domain.validation.ValidateEventTitle
+import com.example.eventcalendar.domain.validation.ValidateRepeatType
 import com.example.eventcalendar.util.stringToDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateReminderViewModel @Inject constructor(
     private val insertEvent: InsertEvent,
-    private val validateEventTitle: ValidateEventTitle
+    private val validateEventTitle: ValidateEventTitle,
+    private val validateRepeatType: ValidateRepeatType
 ) : ViewModel() {
 
     var formState by mutableStateOf(CreateReminderFormState())
@@ -36,8 +38,20 @@ class CreateReminderViewModel @Inject constructor(
                 formState = formState.copy(title = event.title, titleError = null)
             }
 
+            is CreateReminderFormEvent.DateChanged -> {
+                formState = formState.copy(date = event.date)
+            }
+
+            is CreateReminderFormEvent.TimeChanged -> {
+                formState = formState.copy(time = event.time)
+            }
+
             is CreateReminderFormEvent.RepeatChanged -> {
                 formState = formState.copy(repeat = event.repeat, repeatError = null)
+            }
+
+            is CreateReminderFormEvent.DescriptionChanged -> {
+                formState = formState.copy(description = event.description)
             }
 
             is CreateReminderFormEvent.Submit -> {
@@ -48,10 +62,12 @@ class CreateReminderViewModel @Inject constructor(
 
     private fun validateData() {
         val titleResult = validateEventTitle.execute(formState.title)
-        val hasError = listOf(titleResult).any { !it.successful }
+        val repeatResult = validateRepeatType.execute(formState.repeat)
+        val hasError = listOf(titleResult, repeatResult).any { !it.successful }
         if (hasError) {
             formState = formState.copy(
-                titleError = titleResult.errorMessage
+                titleError = titleResult.errorMessage,
+                repeatError = repeatResult.errorMessage
             )
             return
         }
@@ -60,22 +76,17 @@ class CreateReminderViewModel @Inject constructor(
         }
     }
 
-    fun insert(date: String, onSuccess:() -> Unit) {
-        val d = date.stringToDate()
-        val calendar = Calendar.getInstance()
-        val sampleText: (words: Int) -> String =
-            { words -> LoremIpsum(words = words).values.first() }
+    fun insert(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val event = MyEventEntity(
                 id = 0,
                 title = formState.title,
-                description = sampleText(24),
-                time = calendar.time.time,
+                description = formState.description,
+                time = formState.time,
                 endTime = null,
-                date = d.time,
+                date = formState.date,
                 endDate = null,
-                repeat = true,
-                repeatPattern = null
+                repeat = formState.repeat
             )
             val insert = insertEvent.execute(event)
             when (insert) {

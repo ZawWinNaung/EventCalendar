@@ -13,6 +13,5 @@ data class MyEventEntity(
     val endTime: Long?,
     val date: Long,
     val endDate: Long?,
-    val repeat: Boolean,
-    val repeatPattern: String?
+    val repeat: String,
 )

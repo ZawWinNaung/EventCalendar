@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c4486fb26d859097db0886dd26f8f3de",
+    "identityHash": "e3bb10bb1e332160c18e2f4af5ab6a36",
     "entities": [
       {
         "tableName": "my_event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `time` INTEGER NOT NULL, `endTime` INTEGER, `date` INTEGER NOT NULL, `endDate` INTEGER, `repeat` INTEGER NOT NULL, `repeatPattern` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `time` INTEGER NOT NULL, `endTime` INTEGER, `date` INTEGER NOT NULL, `endDate` INTEGER, `repeat` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -53,14 +53,8 @@
           {
             "fieldPath": "repeat",
             "columnName": "repeat",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "repeatPattern",
-            "columnName": "repeatPattern",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -76,7 +70,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c4486fb26d859097db0886dd26f8f3de')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e3bb10bb1e332160c18e2f4af5ab6a36')"
     ]
   }
 }
