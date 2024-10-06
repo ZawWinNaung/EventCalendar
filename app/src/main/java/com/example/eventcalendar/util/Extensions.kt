@@ -36,3 +36,9 @@ fun String.stringToDate(): Date {
         Calendar.getInstance().time
     }
 }
+
+fun Long.longToDate(): Date {
+    val cal = Calendar.getInstance()
+    cal.time.time = this
+    return cal.time
+}

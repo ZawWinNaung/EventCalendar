@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.eventcalendar.domain.constant.sdf
+import com.example.eventcalendar.ui.theme.Pink80
 import com.example.eventcalendar.ui.theme.interFontFamily
 import com.example.eventcalendar.ui.theme.poppinsFontFamily
 import com.example.eventcalendar.util.isWeekEnd
@@ -46,12 +48,11 @@ fun DayItem(
     dateFormatter: SimpleDateFormat = SimpleDateFormat("dd", Locale.US)
 ) {
     val backgroundColor = when {
-        isSelected -> MaterialTheme.colorScheme.tertiaryContainer
+        isSelected -> Pink80
         else -> MaterialTheme.colorScheme.background
     }
 
     val dayNameFormatter = SimpleDateFormat("EE", Locale.US)
-    val dateParser = SimpleDateFormat("DD/MM/yyyy", Locale.US)
 
     Card(
         onClick = { onDateSelected() },
@@ -73,7 +74,7 @@ fun DayItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val dateString = dateParser.parse(date)
+            val dateString = sdf.parse(date)
             dateString?.let {
                 val calendar = Calendar.getInstance()
                 calendar.time = it

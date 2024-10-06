@@ -1,17 +1,12 @@
 package com.example.eventcalendar.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -22,18 +17,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.eventcalendar.domain.constant.EventBackgroundColors
 import com.example.eventcalendar.domain.constant.EventTextColors
 import com.example.eventcalendar.domain.model.MyEvent
 import com.example.eventcalendar.ui.theme.interFontFamily
 import com.example.eventcalendar.ui.theme.poppinsFontFamily
+import com.example.eventcalendar.util.toDateString
 import com.example.eventcalendar.util.toTimeString
 
 @Composable
@@ -41,6 +35,7 @@ fun EventItem(
     event: MyEvent
 ) {
     val startTime = event.time.toTimeString()
+    val date = event.date.toDateString()
     var endTime = ""
     var backgroundColor: Color = EventBackgroundColors.SimpleEvent.color
     var textColor: Color = EventTextColors.SimpleEvent.color
@@ -105,14 +100,31 @@ fun EventItem(
                 )
                 when (event) {
                     is MyEvent.Reminder -> {
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = startTime,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = textColor,
-                            fontFamily = poppinsFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = startTime,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = textColor,
+                                fontFamily = poppinsFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+
+                            Text(
+                                modifier = Modifier.weight(1f)
+                                    .padding(start = 8.dp),
+                                text = date,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = textColor,
+                                fontFamily = poppinsFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Start
+                            )
+                        }
                     }
 
                     else -> {
