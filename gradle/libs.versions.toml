@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.1"
 composeDatePicker = "1.1.0"
+firebaseBom = "33.4.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -19,6 +20,7 @@ hiltCompiler = "2.49"
 daggerCompiler = "2.49"
 hiltNavigationCompose = "1.2.0"
 kotlinxSerialization = "1.9.0"
+gms-google-service = "4.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +29,9 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 compose-date-picker = { module = "com.github.DogusTeknoloji:compose-date-picker", version.ref = "composeDatePicker" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -54,5 +59,6 @@ jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serializati
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 androidx-room = {id = "androidx.room", version.ref = "roomRuntime"}
+gms-google-service = {id ="com.google.gms.google-services", version.ref = "gms-google-service"}
 
 
