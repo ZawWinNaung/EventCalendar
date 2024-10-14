@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.eventcalendar"
+    namespace = "zawwin.naung.eventcalendar"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.eventcalendar"
+        applicationId = "zawwin.naung.eventcalendar"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
