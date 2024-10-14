@@ -115,7 +115,8 @@ fun EventItem(
                             )
 
                             Text(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
                                     .padding(start = 8.dp),
                                 text = date,
                                 style = MaterialTheme.typography.bodyLarge,

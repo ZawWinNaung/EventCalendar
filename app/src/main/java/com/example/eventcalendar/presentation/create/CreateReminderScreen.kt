@@ -1,6 +1,9 @@
 package com.example.eventcalendar.presentation.create
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.eventcalendar.domain.constant.RepeatType
 import com.example.eventcalendar.domain.constant.sdf
 import com.example.eventcalendar.domain.core.ValidationEvent
+import com.example.eventcalendar.presentation.components.DatePickerModal
 import com.example.eventcalendar.presentation.components.ErrorText
 import com.example.eventcalendar.ui.theme.interFontFamily
 import com.example.eventcalendar.ui.theme.poppinsFontFamily
@@ -52,6 +56,9 @@ import com.example.eventcalendar.util.longToDate
 import com.example.eventcalendar.util.stringToDate
 import com.example.eventcalendar.util.toDateString
 import com.example.eventcalendar.util.toTimeString
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,12 +71,34 @@ fun CreateReminderScreen(
     viewModel: CreateReminderViewModel = hiltViewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var datePickerState by remember { mutableStateOf(false) }
     val maxChar = 140
 
     val repeatTypes = enumValues<RepeatType>()
 
     val state = viewModel.formState
     val context = LocalContext.current
+
+    val dateFieldInteractionSource = remember {
+        object : MutableInteractionSource {
+            override val interactions = MutableSharedFlow<Interaction>(
+                extraBufferCapacity = 16,
+                onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            )
+
+            override suspend fun emit(interaction: Interaction) {
+                when (interaction) {
+                    is PressInteraction.Press -> {
+                        datePickerState = true
+                    }
+                }
+            }
+
+            override fun tryEmit(interaction: Interaction): Boolean {
+                return interactions.tryEmit(interaction)
+            }
+        }
+    }
 
     LaunchedEffect(context) {
         viewModel.validationEvent.collect { event ->
@@ -107,6 +136,16 @@ fun CreateReminderScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                if (datePickerState) {
+                    DatePickerModal(
+                        onDateSelected = { date ->
+                            date?.let {
+                                viewModel.onEvent(CreateReminderFormEvent.DateChanged(it))
+                            }
+                        },
+                        onDismiss = { datePickerState = false }
+                    )
+                }
                 BottomSheetDefaults.DragHandle()
                 Row(
                     modifier = Modifier
@@ -235,7 +274,8 @@ fun CreateReminderScreen(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray,
                         disabledBorderColor = Color.LightGray,
-                    )
+                    ),
+                    interactionSource = dateFieldInteractionSource
                 )
             }
             ExposedDropdownMenuBox(
