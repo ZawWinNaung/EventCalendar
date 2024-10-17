@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1096468451968",
+    "project_id": "event-calendar-d5b5d",
+    "storage_bucket": "event-calendar-d5b5d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096468451968:android:9ac7979643527afcff0c65",
+        "android_client_info": {
+          "package_name": "zawwin.naung.eventcalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1096468451968-pqfcfcpu1pan9tf5bc83efarsdv7k237.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "zawwin.naung.eventcalendar",
+            "certificate_hash": "9e7ca39003efa4d6abe14c7a6cb63a506b01bfc3"
+          }
+        },
+        {
+          "client_id": "1096468451968-1qub4doc6nu34qa06mnf6tmbv0t12nt5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAigVne7PPSib57JG5JPpgEMHcrSZ0-3Gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1096468451968-1qub4doc6nu34qa06mnf6tmbv0t12nt5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
