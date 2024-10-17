@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "1096468451968-e4mg9lmmghtoj73a5mo75p1diaormo3o.apps.googleusercontent.com",
+          "client_id": "1096468451968-pqfcfcpu1pan9tf5bc83efarsdv7k237.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "zawwin.naung.eventcalendar",
-            "certificate_hash": "c57057da9bdedf83d4e0dee6221bdfce77c3d750"
+            "certificate_hash": "9e7ca39003efa4d6abe14c7a6cb63a506b01bfc3"
           }
         },
         {

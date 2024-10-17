@@ -5,12 +5,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import zawwin.naung.eventcalendar.presentation.home.HomeScreen
+import zawwin.naung.eventcalendar.presentation.sign_in.SignInScreen
 
 @Composable
-fun MyNavigationHost(){
+fun MyNavigationHost() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination =  Home){
+    NavHost(navController = navController, startDestination = SignIn) {
+        composable<SignIn> {
+            SignInScreen(navController)
+        }
         composable<Home> {
             HomeScreen()
         }
