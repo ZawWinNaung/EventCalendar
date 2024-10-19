@@ -16,4 +16,8 @@ class AccountServiceImpl @Inject constructor() : AccountService {
         Firebase.auth.signInWithCredential(firebaseCredential).await()
     }
 
+    override suspend fun signOut() {
+        Firebase.auth.signOut()
+    }
+
 }

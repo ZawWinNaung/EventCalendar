@@ -81,6 +81,9 @@ dependencies {
     implementation (libs.compose.date.picker)
     implementation (libs.androidx.material.icons.extended)
 
+    /*Material*/
+    implementation (libs.material)
+
     /*hilt*/
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -105,4 +108,7 @@ dependencies {
 
     /*Coil*/
     implementation(libs.coil.compose)
+
+    /*Splash Screen*/
+    implementation (libs.androidx.core.splashscreen)
 }
