@@ -1,5 +1,6 @@
 package zawwin.naung.eventcalendar.presentation.sign_in
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import zawwin.naung.eventcalendar.domain.core.MyState
 import zawwin.naung.eventcalendar.navigation.Home
 
@@ -33,6 +36,7 @@ fun SignInScreen(navController: NavController, viewModel: SignInViewModel = hilt
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Log.d("#auth", Firebase.auth.currentUser?.isAnonymous.toString())
         when (state.value) {
             MyState.Initial -> {
                 showButton = true

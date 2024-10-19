@@ -7,4 +7,6 @@ import zawwin.naung.eventcalendar.domain.core.MyState
 interface AccountService {
 
     suspend fun signInWithGoogle(idToken: String)
+
+    suspend fun signOut()
 }
